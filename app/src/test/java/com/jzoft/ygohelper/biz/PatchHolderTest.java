@@ -1,6 +1,6 @@
 package com.jzoft.ygohelper.biz;
 
-import com.jzoft.ygohelper.mock.PatchLocalizatorMock;
+import com.jzoft.ygohelper.mock.PatchLocatorMock;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -17,11 +17,11 @@ import static junit.framework.Assert.assertNotNull;
 public class PatchHolderTest {
 
     private PatchHolder holder;
-    private PatchLocalizatorMock localizator;
+    private PatchLocatorMock localizator;
 
     @Before
     public void setUp() throws Exception {
-        localizator = new PatchLocalizatorMock();
+        localizator = new PatchLocatorMock();
         holder = new PatchHolder(localizator);
     }
 

@@ -1,5 +1,7 @@
 package com.jzoft.ygohelper.biz;
 
+import com.jzoft.ygohelper.utils.HttpCaller;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -7,10 +9,10 @@ import java.util.List;
  * Created by jjimenez on 11/10/16.
  */
 public class PatchHolder {
-    private final PatchLocalizator localizator;
+    private final PatchLocator localizator;
     private LinkedList<Patch> patches;
 
-    public PatchHolder(PatchLocalizator localizator) {
+    public PatchHolder(PatchLocator localizator) {
         this.localizator = localizator;
         patches = new LinkedList<>();
     }
@@ -23,8 +25,8 @@ public class PatchHolder {
         }
     }
 
-    public void add(String location) {
-        Patch patch = localizator.localize(location);
+    public void add(String location) throws HttpCaller.NotFound {
+        Patch patch = localizator.locate(location);
         if (patch == null)
             throw new IllegalArgumentException();
         patches.add(patch);

@@ -28,36 +28,54 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:background="@color/transparent_white"
-                android:orientation="horizontal">
+                android:orientation="vertical">
 
-                <ImageButton
-                    android:id="@+id/find"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:backgroundTint="@color/transparent"
-                    android:src="@drawable/find" />
+                <LinearLayout
+                    android:layout_width="160dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/transparent_white"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/copy_last"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:backgroundTint="@color/transparent"
+                        android:src="@drawable/copy" />
+
+                    <ImageButton
+                        android:id="@+id/delete_item"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:backgroundTint="@color/transparent"
+                        android:src="@drawable/delete" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="160dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/transparent_white"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/find"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:backgroundTint="@color/transparent"
+                        android:src="@drawable/find" />
+
+                    <ImageButton
+                        android:id="@+id/paste_item"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:backgroundTint="@color/transparent"
+                        android:src="@drawable/paste" />
 
 
-                <ImageButton
-                    android:id="@+id/copy_last"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:backgroundTint="@color/transparent"
-                    android:src="@drawable/copy" />
+                </LinearLayout>
 
-                <ImageButton
-                    android:id="@+id/paste_item"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:backgroundTint="@color/transparent"
-                    android:src="@drawable/paste" />
-
-                <ImageButton
-                    android:id="@+id/delete_item"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:backgroundTint="@color/transparent"
-                    android:src="@drawable/delete" />
             </LinearLayout>
         </RelativeLayout>
 

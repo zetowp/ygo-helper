@@ -19,4 +19,12 @@ public class Patch {
     public byte[] getImage() {
         return image;
     }
+
+    @Override
+    public String toString() {
+        return "Patch{" +
+                "image=" + image +
+                ", url='" + url + '\'' +
+                '}';
+    }
 }
