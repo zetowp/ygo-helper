@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
@@ -37,7 +38,7 @@ public class PatchPrinterHtml implements com.jzoft.ygohelper.biz.PatchPrinter {
     private static final String HTML_END = "</table>\n" +
             "</body>\n" +
             "</html>";
-    private static final String HTML_TEMPLATE = "";
+    private static final String HTML_TEMPLATE = "<td><img src=\"patch\" width=\"223px\" style=\"border-style:none;\"></td>";
     private Context context;
 
     public PatchPrinterHtml(Context context) {
@@ -47,7 +48,8 @@ public class PatchPrinterHtml implements com.jzoft.ygohelper.biz.PatchPrinter {
     @Override
     public void print(List<Patch> patches) {
         String html = buildHtml(patches);
-        File toOpen = new File(context.getFilesDir().getPath().toString() + "/patches.html");
+        File downloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        File toOpen = new File(downloads, "patches.html");
         createFile(html, toOpen);
         lunchBrowser(toOpen);
     }
@@ -98,4 +100,6 @@ public class PatchPrinterHtml implements com.jzoft.ygohelper.biz.PatchPrinter {
             Toast.makeText(context, "No handler for this type of file.", Toast.LENGTH_LONG).show();
         }
     }
+
+
 }
