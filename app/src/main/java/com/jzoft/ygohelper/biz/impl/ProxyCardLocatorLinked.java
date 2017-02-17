@@ -1,24 +1,24 @@
 package com.jzoft.ygohelper.biz.impl;
 
-import com.jzoft.ygohelper.biz.Patch;
-import com.jzoft.ygohelper.biz.PatchLocator;
+import com.jzoft.ygohelper.biz.ProxyCard;
+import com.jzoft.ygohelper.biz.ProxyCardLocator;
 import com.jzoft.ygohelper.utils.HttpCaller;
 
 /**
  * Created by jjimenez on 13/10/16.
  */
-public class PatchLocatorLinked implements PatchLocator {
+public class ProxyCardLocatorLinked implements ProxyCardLocator {
 
-    private PatchLocator locator;
-    private PatchLocator next;
+    private ProxyCardLocator locator;
+    private ProxyCardLocator next;
 
-    private PatchLocatorLinked(PatchLocator locator, PatchLocator next) {
+    private ProxyCardLocatorLinked(ProxyCardLocator locator, ProxyCardLocator next) {
         this.locator = locator;
         this.next = next;
     }
 
     @Override
-    public Patch locate(String location) throws HttpCaller.NotFound {
+    public ProxyCard locate(String location) throws HttpCaller.NotFound {
         if (!hasToLocate(location) && next != null)
             return next.locate(location);
         if (next == null)
@@ -32,14 +32,14 @@ public class PatchLocatorLinked implements PatchLocator {
         return locator.hasToLocate(location);
     }
 
-    public static PatchLocator buildPatchLocatorLinked(PatchLocator... locators) {
+    public static ProxyCardLocator buildPatchLocatorLinked(ProxyCardLocator... locators) {
         if (locators.length == 0)
             return null;
-        return new PatchLocatorLinked(locators[0], buildPatchLocatorLinked(removeFirst(locators)));
+        return new ProxyCardLocatorLinked(locators[0], buildPatchLocatorLinked(removeFirst(locators)));
     }
 
-    private static PatchLocator[] removeFirst(PatchLocator[] locators) {
-        PatchLocator[] withoutFirst = new PatchLocator[locators.length - 1];
+    private static ProxyCardLocator[] removeFirst(ProxyCardLocator[] locators) {
+        ProxyCardLocator[] withoutFirst = new ProxyCardLocator[locators.length - 1];
         for (int i = 1; i < locators.length; i++) {
             withoutFirst[i - 1] = locators[i];
         }

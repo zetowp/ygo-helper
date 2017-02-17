@@ -8,35 +8,35 @@ import java.util.List;
 /**
  * Created by jjimenez on 11/10/16.
  */
-public class PatchHolder {
-    private final PatchLocator localizator;
-    private LinkedList<Patch> patches;
+public class ProxyCardHolder {
+    private final ProxyCardLocator localizator;
+    private List<ProxyCard> proxyCards;
 
-    public PatchHolder(PatchLocator localizator) {
+    public ProxyCardHolder(ProxyCardLocator localizator) {
         this.localizator = localizator;
-        patches = new LinkedList<>();
+        proxyCards = new LinkedList<ProxyCard>();
     }
 
     public void copy(int index) {
         try {
-            patches.add(index + 1, patches.get(index));
+            proxyCards.add(index + 1, proxyCards.get(index));
         } catch (IndexOutOfBoundsException e) {
             throw new IllegalArgumentException();
         }
     }
 
     public void add(String location) throws HttpCaller.NotFound {
-        Patch patch = localizator.locate(location);
-        if (patch == null)
+        ProxyCard proxyCard = localizator.locate(location);
+        if (proxyCard == null)
             throw new IllegalArgumentException();
-        patches.add(patch);
+        proxyCards.add(proxyCard);
     }
 
     public void remove(int index) {
-        patches.remove(index);
+        proxyCards.remove(index);
     }
 
-    public List<Patch> getPatches() {
-        return patches;
+    public List<ProxyCard> getProxyCards() {
+        return proxyCards;
     }
 }

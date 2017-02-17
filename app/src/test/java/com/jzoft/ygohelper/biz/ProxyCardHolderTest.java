@@ -14,15 +14,15 @@ import static junit.framework.Assert.assertNotNull;
 /**
  * Created by jjimenez on 11/10/16.
  */
-public class PatchHolderTest {
+public class ProxyCardHolderTest {
 
-    private PatchHolder holder;
+    private ProxyCardHolder holder;
     private PatchLocatorMock localizator;
 
     @Before
     public void setUp() throws Exception {
         localizator = new PatchLocatorMock();
-        holder = new PatchHolder(localizator);
+        holder = new ProxyCardHolder(localizator);
     }
 
     @Test
@@ -54,8 +54,8 @@ public class PatchHolderTest {
         localizator.addValid(location);
         holder.add(location);
         holder.copy(0);
-        List<Patch> patches = holder.getPatches();
-        assertEquals(patches.get(0), patches.get(1));
+        List<ProxyCard> proxyCards = holder.getProxyCards();
+        assertEquals(proxyCards.get(0), proxyCards.get(1));
     }
 
     private String rnd() {
@@ -72,8 +72,8 @@ public class PatchHolderTest {
         holder.add(rnd());
         holder.add(rnd());
         holder.copy(4);
-        List<Patch> patches = holder.getPatches();
-        assertEquals(patches.get(0), patches.get(1));
-        assertEquals(patches.get(4), patches.get(5));
+        List<ProxyCard> proxyCards = holder.getProxyCards();
+        assertEquals(proxyCards.get(0), proxyCards.get(1));
+        assertEquals(proxyCards.get(4), proxyCards.get(5));
     }
 }

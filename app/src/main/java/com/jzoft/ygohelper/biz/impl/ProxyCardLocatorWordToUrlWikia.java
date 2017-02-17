@@ -1,7 +1,7 @@
 package com.jzoft.ygohelper.biz.impl;
 
-import com.jzoft.ygohelper.biz.Patch;
-import com.jzoft.ygohelper.biz.PatchLocator;
+import com.jzoft.ygohelper.biz.ProxyCard;
+import com.jzoft.ygohelper.biz.ProxyCardLocator;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * Created by jjimenez on 11/10/16.
  */
-public class PatchLocatorWordToUrlWikia implements PatchLocator {
+public class ProxyCardLocatorWordToUrlWikia implements ProxyCardLocator {
 
     private static final Map<String, String> nonCapitalize = buildNonCapitalized();
 
@@ -23,7 +23,7 @@ public class PatchLocatorWordToUrlWikia implements PatchLocator {
     }
 
     @Override
-    public Patch locate(String location) {
+    public ProxyCard locate(String location) {
         StringBuilder builder = new StringBuilder("http://yugioh.wikia.com/wiki/");
         String[] split = location.split(" ");
         for (int i = 0; i < split.length; i++) {
@@ -31,7 +31,7 @@ public class PatchLocatorWordToUrlWikia implements PatchLocator {
             builder.append("_");
         }
         builder.setLength(builder.length() - 1);
-        return new Patch(builder.toString(), null);
+        return new ProxyCard(builder.toString(), null);
     }
 
     private String getWordToUrl(String s, int index) {

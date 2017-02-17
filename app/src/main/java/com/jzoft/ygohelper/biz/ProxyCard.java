@@ -3,11 +3,11 @@ package com.jzoft.ygohelper.biz;
 /**
  * Created by jjimenez on 11/10/16.
  */
-public class Patch {
+public class ProxyCard {
     private final byte[] image;
     private final String url;
 
-    public Patch(String url, byte[] image) {
+    public ProxyCard(String url, byte[] image) {
         this.url = url;
         this.image = image;
     }
@@ -22,7 +22,7 @@ public class Patch {
 
     @Override
     public String toString() {
-        return "Patch{" +
+        return "ProxyCard{" +
                 "image=" + image +
                 ", url='" + url + '\'' +
                 '}';

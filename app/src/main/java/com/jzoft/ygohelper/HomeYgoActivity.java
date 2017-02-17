@@ -11,9 +11,11 @@ public class HomeYgoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_ygo);
         autoRedirect();
+
     }
 
     private void autoRedirect() {
+        finish();
         startActivity(new Intent(this, PatchCreatorActivity.class));
     }
 }

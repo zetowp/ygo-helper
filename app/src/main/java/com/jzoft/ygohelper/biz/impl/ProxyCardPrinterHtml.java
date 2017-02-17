@@ -9,7 +9,8 @@ import android.support.annotation.NonNull;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
-import com.jzoft.ygohelper.biz.Patch;
+import com.jzoft.ygohelper.biz.ProxyCard;
+import com.jzoft.ygohelper.biz.ProxyCardPrinter;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -19,7 +20,7 @@ import java.util.List;
 /**
  * Created by jjimenez on 14/10/16.
  */
-public class PatchPrinterHtml implements com.jzoft.ygohelper.biz.PatchPrinter {
+public class ProxyCardPrinterHtml implements ProxyCardPrinter {
     private static final String HTML_START = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" +
             "<html>\n" +
             "<head>\n" +
@@ -41,15 +42,15 @@ public class PatchPrinterHtml implements com.jzoft.ygohelper.biz.PatchPrinter {
     private static final String HTML_TEMPLATE = "<td><img src=\"patch\" width=\"223px\" style=\"border-style:none;\"></td>";
     private Context context;
 
-    public PatchPrinterHtml(Context context) {
+    public ProxyCardPrinterHtml(Context context) {
         this.context = context;
     }
 
     @Override
-    public void print(List<Patch> patches) {
-        String html = buildHtml(patches);
+    public void print(List<ProxyCard> proxyCards) {
+        String html = buildHtml(proxyCards);
         File downloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-        File toOpen = new File(downloads, "patches.html");
+        File toOpen = new File(downloads, "proxyCards.html");
         createFile(html, toOpen);
         lunchBrowser(toOpen);
     }
@@ -70,19 +71,19 @@ public class PatchPrinterHtml implements com.jzoft.ygohelper.biz.PatchPrinter {
     }
 
     @NonNull
-    private String buildHtml(List<Patch> patches) {
+    private String buildHtml(List<ProxyCard> proxyCards) {
         StringBuilder html = new StringBuilder(HTML_START);
-        if (!patches.isEmpty()) {
-            buildTable(patches, html);
+        if (!proxyCards.isEmpty()) {
+            buildTable(proxyCards, html);
         }
         html.append(HTML_END);
         return html.toString();
     }
 
-    private void buildTable(List<Patch> patches, StringBuilder html) {
+    private void buildTable(List<ProxyCard> proxyCards, StringBuilder html) {
         html.append("<tr>");
-        for (int i = 0; i < patches.size(); i++) {
-            html.append(HTML_TEMPLATE.replace("patch", patches.get(i).getUrl()));
+        for (int i = 0; i < proxyCards.size(); i++) {
+            html.append(HTML_TEMPLATE.replace("patch", proxyCards.get(i).getUrl()));
             if (i % 3 == 2) html.append("</tr>\n<tr>");
         }
         html.append("</tr>");

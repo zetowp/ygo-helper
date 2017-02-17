@@ -13,7 +13,7 @@ import java.io.ByteArrayOutputStream;
  */
 public class ImageOptimizerDisplay implements ImageOptimizer {
     @Override
-    public byte[] optimiceImage(byte[] image) {
+    public byte[] optimizeImage(byte[] image) {
         Bitmap bitmap = scaleDown(BitmapFactory.decodeStream(new ByteArrayInputStream(image)), 120, true);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 80, stream);

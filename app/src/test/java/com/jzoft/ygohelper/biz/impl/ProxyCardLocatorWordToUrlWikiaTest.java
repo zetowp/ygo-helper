@@ -1,7 +1,7 @@
 package com.jzoft.ygohelper.biz.impl;
 
-import com.jzoft.ygohelper.biz.Patch;
-import com.jzoft.ygohelper.biz.PatchLocator;
+import com.jzoft.ygohelper.biz.ProxyCard;
+import com.jzoft.ygohelper.biz.ProxyCardLocator;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -15,13 +15,13 @@ import static junit.framework.Assert.assertTrue;
 /**
  * Created by jjimenez on 11/10/16.
  */
-public class PatchLocatorWordToUrlWikiaTest {
+public class ProxyCardLocatorWordToUrlWikiaTest {
 
-    private PatchLocator locator;
+    private ProxyCardLocator locator;
 
     @Before
     public void setUp() throws Exception {
-        locator = new PatchLocatorWordToUrlWikia();
+        locator = new ProxyCardLocatorWordToUrlWikia();
     }
 
     @Test
@@ -35,10 +35,10 @@ public class PatchLocatorWordToUrlWikiaTest {
     public void givenOkPath_returnPatch() throws Exception {
         String realLocation = "http://yugioh.wikia.com/wiki/Reinforcement_of_the_Army";
         assertTrue(locator.hasToLocate("reinforcement of the army"));
-        Patch patch = locator.locate("reinforcement of the army");
-        assertNotNull(patch);
-        assertEquals(patch.getUrl(), realLocation);
-        assertNull(patch.getImage());
+        ProxyCard proxyCard = locator.locate("reinforcement of the army");
+        assertNotNull(proxyCard);
+        assertEquals(proxyCard.getUrl(), realLocation);
+        assertNull(proxyCard.getImage());
     }
 
 }

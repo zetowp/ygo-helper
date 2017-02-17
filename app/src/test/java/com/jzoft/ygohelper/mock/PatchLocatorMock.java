@@ -1,7 +1,7 @@
 package com.jzoft.ygohelper.mock;
 
-import com.jzoft.ygohelper.biz.Patch;
-import com.jzoft.ygohelper.biz.PatchLocator;
+import com.jzoft.ygohelper.biz.ProxyCard;
+import com.jzoft.ygohelper.biz.ProxyCardLocator;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * Created by jjimenez on 11/10/16.
  */
-public class PatchLocatorMock implements PatchLocator {
+public class PatchLocatorMock implements ProxyCardLocator {
 
     private Map<String, String> valid = new HashMap<>();
     private boolean allValid = false;
@@ -19,9 +19,9 @@ public class PatchLocatorMock implements PatchLocator {
     }
 
     @Override
-    public Patch locate(String location) {
+    public ProxyCard locate(String location) {
         if (allValid || valid.containsKey(location))
-            return new Patch(null, null);
+            return new ProxyCard(null, null);
         return null;
     }
 
