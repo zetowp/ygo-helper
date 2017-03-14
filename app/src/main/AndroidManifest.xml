@@ -22,9 +22,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".PatchCreatorActivity"
-            android:label="Patch Creator"
-            android:screenOrientation="portrait"></activity>
+            android:name=".ProxyCardCreatorActivity"
+            android:label="Proxy Card Creator"
+            android:screenOrientation="portrait" />
+        <activity android:name=".BaseActivity" />
     </application>
 
 </manifest>

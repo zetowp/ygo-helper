@@ -52,8 +52,9 @@ public class ProxyCardPrinterHtml implements ProxyCardPrinter {
         File downloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         File toOpen = new File(downloads, "proxyCards.html");
         createFile(html, toOpen);
-        lunchBrowser(toOpen);
+        sendEmail(toOpen);
     }
+
 
     private void createFile(String html, File toOpen) {
         toOpen.delete();
@@ -89,7 +90,7 @@ public class ProxyCardPrinterHtml implements ProxyCardPrinter {
         html.append("</tr>");
     }
 
-    public void lunchBrowser(File file) {
+    private void lunchBrowser(File file) {
         MimeTypeMap myMime = MimeTypeMap.getSingleton();
         Intent newIntent = new Intent(Intent.ACTION_VIEW);
         String mimeType = myMime.getMimeTypeFromExtension("html");
@@ -100,6 +101,16 @@ public class ProxyCardPrinterHtml implements ProxyCardPrinter {
         } catch (ActivityNotFoundException e) {
             Toast.makeText(context, "No handler for this type of file.", Toast.LENGTH_LONG).show();
         }
+    }
+
+
+    private void sendEmail(File toOpen) {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_SUBJECT, "proxys");
+        intent.putExtra(Intent.EXTRA_TEXT, "open attachment in browser and print page");
+        intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(toOpen));
+        context.startActivity(Intent.createChooser(intent, "Send email..."));
     }
 
 

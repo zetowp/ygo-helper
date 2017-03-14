@@ -9,8 +9,8 @@ import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.inputmethod.InputMethodManager;
@@ -18,13 +18,14 @@ import android.view.inputmethod.InputMethodManager;
 import com.jzoft.ygohelper.adapters.PatchAdapter;
 import com.jzoft.ygohelper.databinding.ActivityPatchCreatorBinding;
 
-public class PatchCreatorActivity extends AppCompatActivity {
+public class ProxyCardCreatorActivity extends BaseActivity {
 
 
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
+    private DrawerLayout tools;
 
     public static void verifyStoragePermissions(Activity activity) {
         int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -90,4 +91,6 @@ public class PatchCreatorActivity extends AppCompatActivity {
         AlertDialog alert = builder.create();
         alert.show();
     }
+
+
 }

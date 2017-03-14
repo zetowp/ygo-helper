@@ -17,9 +17,9 @@ import android.widget.Toast;
 import com.jzoft.ygohelper.R;
 import com.jzoft.ygohelper.biz.ProxyCard;
 import com.jzoft.ygohelper.biz.ProxyCardHolder;
+import com.jzoft.ygohelper.biz.ProxyCardLoader;
 import com.jzoft.ygohelper.biz.ProxyCardLocator;
 import com.jzoft.ygohelper.biz.ProxyCardPrinter;
-import com.jzoft.ygohelper.biz.ProxyCardLoader;
 import com.jzoft.ygohelper.biz.impl.ProxyCardLocatorLinked;
 import com.jzoft.ygohelper.biz.impl.ProxyCardLocatorUrlToImage;
 import com.jzoft.ygohelper.biz.impl.ProxyCardLocatorUrlWikiaToImageUrl;
@@ -150,7 +150,7 @@ public class PatchAdapter extends RecyclerView.Adapter<PatchAdapter.ViewHolder> 
     }
 
     private String getLocation() throws NothingOnClipboard {
-        if (clipboard.getPrimaryClip().getItemCount() > 0) {
+        if (clipboard.getPrimaryClip() != null && clipboard.getPrimaryClip().getItemCount() > 0) {
             ClipData.Item itemAt = clipboard.getPrimaryClip().getItemAt(0);
             return itemAt.coerceToText(context).toString();
         } else {

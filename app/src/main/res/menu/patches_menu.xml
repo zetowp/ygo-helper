@@ -2,17 +2,34 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+
     <item
         android:id="@+id/print_patches"
         android:icon="@drawable/print"
         android:orderInCategory="101"
         android:title="Print"
+        android:visible="false"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/clear"
         android:icon="@drawable/clear"
-        android:orderInCategory="101"
+        android:orderInCategory="102"
         android:title="Clear"
+        android:visible="false"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/info"
+        android:icon="@drawable/info"
+        android:orderInCategory="200"
+        android:title="Info"
+        android:visible="false"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/reset"
+        android:icon="@drawable/reset"
+        android:orderInCategory="101"
+        android:title="Reset"
+        android:visible="false"
         app:showAsAction="ifRoom" />
 
 
