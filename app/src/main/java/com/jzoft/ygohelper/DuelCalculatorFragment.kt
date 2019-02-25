@@ -2,22 +2,19 @@ package com.jzoft.ygohelper
 
 import android.app.Activity
 import android.content.DialogInterface
-import android.databinding.DataBindingUtil
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
-import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 
 import com.jzoft.ygohelper.biz.DuelCalculator
-import com.jzoft.ygohelper.databinding.CalculatorFragmentBinding
 import com.jzoft.ygohelper.utils.ActivityUtils
+import kotlinx.android.synthetic.main.calculator_fragment.*
 
 import java.util.Arrays
 import java.util.Locale
@@ -27,14 +24,10 @@ import java.util.Locale
  */
 class DuelCalculatorFragment : YgoFragment() {
     private lateinit var calculator: DuelCalculator
-    private lateinit var binding: CalculatorFragmentBinding
 
-
-    override val title: String
-        get() = "Duel Calculator"
-
-    override val options: List<Int>
-        get() = Arrays.asList(R.id.reset, R.id.info)
+    override val title = "Duel Calculator"
+    override val options = Arrays.asList(R.id.reset, R.id.info)
+    override val fragmentLayout = R.layout.calculator_fragment
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         super.onOptionsItemSelected(item)
@@ -54,40 +47,38 @@ class DuelCalculatorFragment : YgoFragment() {
     private fun createRestartAction(): DialogInterface.OnClickListener {
         return DialogInterface.OnClickListener { dialog, _ ->
             calculator = DuelCalculator()
-            toBaseState(binding)
+            toBaseState()
             dialog.dismiss()
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.inflate(inflater, R.layout.calculator_fragment, container, false)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         calculator = DuelCalculator()
-        binding.log.setOnClickListener(showLog())
-        binding.undo.setOnClickListener(undoAction())
-        binding.half.setOnClickListener(halfAction())
-        binding.quit.setOnClickListener(quitAction())
-        binding.plusMinusToggle.setOnClickListener(toggleSign(binding.plusMinusToggle, binding.preCalculation))
-        binding.zero.setOnClickListener(buildCalculatorNumeral(0))
-        binding.one.setOnClickListener(buildCalculatorNumeral(1))
-        binding.two.setOnClickListener(buildCalculatorNumeral(2))
-        binding.three.setOnClickListener(buildCalculatorNumeral(3))
-        binding.four.setOnClickListener(buildCalculatorNumeral(4))
-        binding.five.setOnClickListener(buildCalculatorNumeral(5))
-        binding.six.setOnClickListener(buildCalculatorNumeral(6))
-        binding.seven.setOnClickListener(buildCalculatorNumeral(7))
-        binding.eight.setOnClickListener(buildCalculatorNumeral(8))
-        binding.nine.setOnClickListener(buildCalculatorNumeral(9))
-        binding.playerA.setOnClickListener(buildRefresher(DuelCalculator.Player.A))
-        binding.playerB.setOnClickListener(buildRefresher(DuelCalculator.Player.B))
-        toBaseState(binding)
-        return binding.root
+        log.setOnClickListener(showLog())
+        undo.setOnClickListener(undoAction())
+        half.setOnClickListener(halfAction())
+        quit.setOnClickListener(quitAction())
+        plusMinusToggle.setOnClickListener(toggleSign(plusMinusToggle, preCalculation))
+        zero.setOnClickListener(buildCalculatorNumeral(0))
+        one.setOnClickListener(buildCalculatorNumeral(1))
+        two.setOnClickListener(buildCalculatorNumeral(2))
+        three.setOnClickListener(buildCalculatorNumeral(3))
+        four.setOnClickListener(buildCalculatorNumeral(4))
+        five.setOnClickListener(buildCalculatorNumeral(5))
+        six.setOnClickListener(buildCalculatorNumeral(6))
+        seven.setOnClickListener(buildCalculatorNumeral(7))
+        eight.setOnClickListener(buildCalculatorNumeral(8))
+        nine.setOnClickListener(buildCalculatorNumeral(9))
+        playerA.setOnClickListener(buildRefresher(DuelCalculator.Player.A))
+        playerB.setOnClickListener(buildRefresher(DuelCalculator.Player.B))
+        toBaseState()
     }
+
 
     private fun buildRefresher(player: DuelCalculator.Player): View.OnClickListener {
         return View.OnClickListener {
             calculator.mark(player)
-            toBaseState(binding)
+            toBaseState()
             if (!calculator.validGame())
                 ActivityUtils.okSimpleCancelAlert(createRestartHolder(), createRestartAction())
         }
@@ -145,11 +136,11 @@ class DuelCalculatorFragment : YgoFragment() {
         }
     }
 
-    private fun toBaseState(binding: CalculatorFragmentBinding) {
-        binding.playerALife.setText(String.format(Locale.US, "%d", calculator.getLife(DuelCalculator.Player.A)))
-        binding.playerBLife.setText(String.format(Locale.US, "%d", calculator.getLife(DuelCalculator.Player.B)))
-        defaulToggle(binding.plusMinusToggle, binding.preCalculation)
-        binding.preCalculation.text = calculator.preview()
+    private fun toBaseState() {
+        playerALife.setText(String.format(Locale.US, "%d", calculator.getLife(DuelCalculator.Player.A)))
+        playerBLife.setText(String.format(Locale.US, "%d", calculator.getLife(DuelCalculator.Player.B)))
+        defaulToggle(plusMinusToggle, preCalculation)
+        preCalculation.text = calculator.preview()
     }
 
     private fun showLog(): View.OnClickListener {
@@ -170,13 +161,13 @@ class DuelCalculatorFragment : YgoFragment() {
     private fun undoAction(): View.OnClickListener {
         return View.OnClickListener {
             calculator.undo()
-            toBaseState(binding)
+            toBaseState()
         }
     }
 
 
     private fun writePre(calculator: DuelCalculator) {
-        binding.preCalculation.text = calculator.preview()
+        preCalculation.text = calculator.preview()
     }
 
     companion object {

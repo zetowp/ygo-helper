@@ -1,10 +1,8 @@
 package com.jzoft.ygohelper.adapters
 
-import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.databinding.DataBindingUtil
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -17,13 +15,8 @@ import com.jzoft.ygohelper.R
 import com.jzoft.ygohelper.biz.ProxyCard
 import com.jzoft.ygohelper.biz.ProxyCardHolder
 import com.jzoft.ygohelper.biz.ProxyCardLoader
-import com.jzoft.ygohelper.biz.ProxyCardLocator
 import com.jzoft.ygohelper.biz.ProxyCardPrinter
-import com.jzoft.ygohelper.biz.impl.ProxyCardLocatorLinked
-import com.jzoft.ygohelper.biz.impl.ProxyCardLocatorUrlToImage
-import com.jzoft.ygohelper.biz.impl.ProxyCardLocatorUrlWikiaToImageUrl
-import com.jzoft.ygohelper.biz.impl.ProxyCardLocatorWordToUrlWikia
-import com.jzoft.ygohelper.biz.impl.ProxyCardPrinterHtml
+import com.jzoft.ygohelper.biz.impl.*
 import com.jzoft.ygohelper.databinding.CardSampleBinding
 import com.jzoft.ygohelper.utils.HttpCaller
 import com.jzoft.ygohelper.utils.HttpCallerFactory
@@ -43,13 +36,14 @@ class PatchAdapter(private val clipboard: ClipboardManager, private val keyboard
     private val loader: ProxyCardLoader
     private val printer: ProxyCardPrinter
 
-    private val proxyFile: File
-        get() {
-            val root = buildLoadFile()
-            if (!root.exists())
-                root.mkdir()
-            return File(root, "proxy.txt")
-        }
+    private val proxyFile = createProxyFile()
+
+    private fun createProxyFile(): File {
+        val root = buildLoadFile()
+        if (!root.exists())
+            root.mkdir()
+        return File(root, "proxy.txt")
+    }
 
 
     private val textFromVirtualKeyboard: String
@@ -76,7 +70,7 @@ class PatchAdapter(private val clipboard: ClipboardManager, private val keyboard
                 ProxyCardLocatorWordToUrlWikia(), ProxyCardLocatorUrlWikiaToImageUrl(caller),
                 urlToImage)!!)
         loader = ProxyCardLoader(proxyFile, urlToImage)
-        printer = ProxyCardPrinterHtml(context)
+        printer = ProxyCardWebView(context)
         list = LinkedList()
         proxyCardHolder.proxyCards.addAll(loader.loadAll())
         refresh()
@@ -107,6 +101,7 @@ class PatchAdapter(private val clipboard: ClipboardManager, private val keyboard
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val proxyCard = list[position]
         if (proxyCard.image == null) {
+
             holder.binding.copyLast.visibility = View.GONE
             holder.binding.deleteItem.visibility = View.GONE
             holder.binding.imageSample.setImageResource(R.drawable.not_found)
