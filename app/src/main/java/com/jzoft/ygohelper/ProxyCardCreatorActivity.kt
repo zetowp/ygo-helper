@@ -6,7 +6,6 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.DialogInterface
 import android.content.pm.PackageManager
-import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.widget.DrawerLayout
@@ -16,7 +15,7 @@ import android.view.MenuItem
 import android.view.inputmethod.InputMethodManager
 
 import com.jzoft.ygohelper.adapters.PatchAdapter
-import com.jzoft.ygohelper.databinding.ActivityPatchCreatorBinding
+import kotlinx.android.synthetic.main.activity_patch_creator.*
 
 class ProxyCardCreatorActivity : BaseActivity() {
     private val tools: DrawerLayout? = null
@@ -25,12 +24,11 @@ class ProxyCardCreatorActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_home_ygo)
         verifyStoragePermissions(this)
-        val binding: ActivityPatchCreatorBinding
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_patch_creator)
         val keyboard = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         patchAdapter = PatchAdapter(getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager, keyboard, this)
-        binding.patchList.adapter = patchAdapter
+        patchList.adapter = patchAdapter
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

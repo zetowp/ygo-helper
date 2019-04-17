@@ -2,7 +2,6 @@ package com.jzoft.ygohelper.adapters
 
 import android.content.ClipboardManager
 import android.content.Context
-import android.databinding.DataBindingUtil
 import android.graphics.BitmapFactory
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -17,10 +16,12 @@ import com.jzoft.ygohelper.biz.ProxyCardHolder
 import com.jzoft.ygohelper.biz.ProxyCardLoader
 import com.jzoft.ygohelper.biz.ProxyCardPrinter
 import com.jzoft.ygohelper.biz.impl.*
-import com.jzoft.ygohelper.databinding.CardSampleBinding
+import com.jzoft.ygohelper.gone
 import com.jzoft.ygohelper.utils.HttpCaller
 import com.jzoft.ygohelper.utils.HttpCallerFactory
 import com.jzoft.ygohelper.utils.impl.ImageOptimizerDisplay
+import com.jzoft.ygohelper.visible
+import kotlinx.android.synthetic.main.card_sample.view.*
 
 import java.io.ByteArrayInputStream
 import java.io.File
@@ -37,6 +38,7 @@ class PatchAdapter(private val clipboard: ClipboardManager, private val keyboard
     private val printer: ProxyCardPrinter
 
     private val proxyFile = createProxyFile()
+
 
     private fun createProxyFile(): File {
         val root = buildLoadFile()
@@ -89,74 +91,6 @@ class PatchAdapter(private val clipboard: ClipboardManager, private val keyboard
         refresh()
     }
 
-
-    class ViewHolder(var binding: CardSampleBinding) : RecyclerView.ViewHolder(binding.root)
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val inflater = LayoutInflater.from(parent.context)
-        val cardInfator = DataBindingUtil.inflate<CardSampleBinding>(inflater, R.layout.card_sample, parent, false)
-        return ViewHolder(cardInfator)
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val proxyCard = list[position]
-        if (proxyCard.image == null) {
-
-            holder.binding.copyLast.visibility = View.GONE
-            holder.binding.deleteItem.visibility = View.GONE
-            holder.binding.imageSample.setImageResource(R.drawable.not_found)
-        } else {
-            holder.binding.copyLast.visibility = View.VISIBLE
-            holder.binding.deleteItem.visibility = View.VISIBLE
-            val bitmap = BitmapFactory.decodeStream(ByteArrayInputStream(proxyCard.image))
-            holder.binding.imageSample.setImageBitmap(bitmap)
-        }
-        addCopyListener(holder, position)
-        addDeleteListener(holder, position)
-        addPasteListener(holder)
-        addKeyboardListener(holder)
-    }
-
-    private fun addKeyboardListener(holder: ViewHolder) {
-        holder.binding.find.setOnClickListener { Toast.makeText(context, "Temporaly disabled", Toast.LENGTH_SHORT) }
-    }
-
-    private fun addPasteListener(holder: ViewHolder) {
-        holder.binding.pasteItem.setOnClickListener {
-            try {
-                tryToAdd(location)
-            } catch (e: NothingOnClipboard) {
-                Toast.makeText(context, "Nothing in the clipboard", Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-
-    private fun tryToAdd(location: String) {
-        try {
-            proxyCardHolder.add(location)
-            refresh()
-        } catch (notFound: HttpCaller.NotFound) {
-            Toast.makeText(context, "Not Found: " + notFound.url, Toast.LENGTH_LONG).show()
-        } catch (e: IllegalArgumentException) {
-            Toast.makeText(context, "Entry error:  $location", Toast.LENGTH_LONG).show()
-        }
-
-    }
-
-    private fun addDeleteListener(holder: ViewHolder, position: Int) {
-        holder.binding.deleteItem.setOnClickListener {
-            proxyCardHolder.remove(position)
-            refresh()
-        }
-    }
-
-    private fun addCopyListener(holder: ViewHolder, position: Int) {
-        holder.binding.copyLast.setOnClickListener {
-            proxyCardHolder.copy(position)
-            refresh()
-        }
-    }
-
     private fun refresh() {
         list.clear()
         list.addAll(proxyCardHolder.proxyCards)
@@ -165,9 +99,74 @@ class PatchAdapter(private val clipboard: ClipboardManager, private val keyboard
         notifyDataSetChanged()
     }
 
-    override fun getItemCount(): Int {
-        return list.size
+    override fun getItemCount() = list.size
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        return ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.card_sample, parent, false))
+    }
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.bind(list[position], position)
     }
 
-    private class NothingOnClipboard : Exception()
+    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+
+        fun bind(proxyCard: ProxyCard, index: Int) {
+            if (proxyCard.image == null) {
+
+                itemView.copyLast.gone()
+                itemView.deleteItem.gone()
+                itemView.imageSample.setImageResource(R.drawable.not_found)
+            } else {
+                itemView.copyLast.visible()
+                itemView.deleteItem.visible()
+                val bitmap = BitmapFactory.decodeStream(ByteArrayInputStream(proxyCard.image))
+                itemView.imageSample.setImageBitmap(bitmap)
+            }
+            addCopyListener(index)
+            addDeleteListener(index)
+            addPasteListener()
+            itemView.find.setOnClickListener { Toast.makeText(context, "Temporaly disabled", Toast.LENGTH_SHORT) }
+        }
+
+        private fun addKeyboardListener() {
+            itemView.find.setOnClickListener { Toast.makeText(context, "Temporaly disabled", Toast.LENGTH_SHORT) }
+        }
+
+        private fun addPasteListener() {
+            itemView.pasteItem.setOnClickListener {
+                try {
+                    tryToAdd(location)
+                } catch (e: NothingOnClipboard) {
+                    Toast.makeText(context, "Nothing in the clipboard", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+
+        private fun tryToAdd(location: String) {
+            try {
+                proxyCardHolder.add(location)
+                refresh()
+            } catch (notFound: HttpCaller.NotFound) {
+                Toast.makeText(context, "Not Found: " + notFound.url, Toast.LENGTH_LONG).show()
+            } catch (e: IllegalArgumentException) {
+                Toast.makeText(context, "Entry error:  $location", Toast.LENGTH_LONG).show()
+            }
+
+        }
+
+        private fun addDeleteListener(position: Int) {
+            itemView.deleteItem.setOnClickListener {
+                proxyCardHolder.remove(position)
+                refresh()
+            }
+        }
+
+        private fun addCopyListener(position: Int) {
+            itemView.copyLast.setOnClickListener {
+                proxyCardHolder.copy(position)
+                refresh()
+            }
+        }
+    }
+
+    class NothingOnClipboard : Exception()
 }

@@ -1,8 +1,6 @@
 package com.jzoft.ygohelper
 
 import android.content.Intent
-import android.databinding.DataBindingUtil
-import android.databinding.ViewDataBinding
 import android.os.Bundle
 import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
@@ -10,15 +8,13 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.AdapterView
 import android.widget.ListView
 import android.widget.Toast
-
 import com.jzoft.ygohelper.ui.Option
 import com.jzoft.ygohelper.ui.ToolsListAdapter
-
-import java.util.ArrayList
+import kotlinx.android.synthetic.main.tools_layout.*
+import java.util.*
 
 open class BaseActivity : AppCompatActivity() {
 
@@ -34,10 +30,8 @@ open class BaseActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        DataBindingUtil.setContentView<ViewDataBinding>(this, R.layout.tools_layout)
-        val list = this.findViewById<View>(R.id.tools_drawer) as ListView
-        addTools(list)
-        configureDrawer(this.findViewById<View>(R.id.app_tools) as DrawerLayout)
+        addTools(toolsDrawer)
+        configureDrawer(appTools)
     }
 
     protected fun configureDrawer(drawer: DrawerLayout) {
@@ -64,7 +58,7 @@ open class BaseActivity : AppCompatActivity() {
 
     private fun addTools(list: ListView) {
         val options = ArrayList<Option>()
-        options.add(Option(Option.PROXY, "Proxy Maker", R.drawable.proxy_tool))
+        options.add(Option(Option.PROXY, "Proxy Maker", R.drawable.proxy_tool) { })
         list.adapter = ToolsListAdapter(this, options)
         list.onItemClickListener = toolsListener
     }

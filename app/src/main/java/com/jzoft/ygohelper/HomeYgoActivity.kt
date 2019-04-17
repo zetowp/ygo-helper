@@ -1,6 +1,5 @@
 package com.jzoft.ygohelper
 
-import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
@@ -9,36 +8,16 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.widget.AdapterView
-import android.widget.ListView
-import android.widget.Toast
 
-import com.jzoft.ygohelper.databinding.ActivityHomeYgoBinding
 import com.jzoft.ygohelper.ui.Option
 import com.jzoft.ygohelper.ui.ToolsListAdapter
-
-import java.util.ArrayList
+import kotlinx.android.synthetic.main.activity_home_ygo.*
+import kotlinx.android.synthetic.main.toolbar_home.view.*
 
 class HomeYgoActivity : AppCompatActivity() {
 
-    private var toolbar: Toolbar? = null
-    private var options: DrawerLayout? = null
     private var fragment: YgoFragment? = null
     private var menu: Menu? = null
-
-    val toolsListener: AdapterView.OnItemClickListener
-        get() = AdapterView.OnItemClickListener { adapterView, _, position, _ ->
-            val item = adapterView.adapter.getItem(position) as Option
-            when (item.id) {
-                Option.PROXY -> if (fragment !is ProxyCardCreatorFragment)
-                    addContent(proxyContent)
-                Option.CALCULATOR -> if (fragment !is DuelCalculatorFragment)
-                    addContent(calculator)
-                else -> Toast.makeText(baseContext, getString(R.string.notAvailable), Toast.LENGTH_LONG).show()
-            }
-            options!!.closeDrawer(GravityCompat.START)
-        }
 
     private val proxyContent: YgoFragment
         get() = ProxyCardCreatorFragment()
@@ -48,22 +27,26 @@ class HomeYgoActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val binding = DataBindingUtil.setContentView<ActivityHomeYgoBinding>(this, R.layout.activity_home_ygo)
-        addTools(binding.optionsList)
-        options = binding.options
-        configureDrawer(options!!)
-        toolbar = binding.toolbar.bar
-        setSupportActionBar(toolbar)
-        configureToolbar(toolbar!!)
-        addDefaultContent()
+        setContentView(R.layout.activity_home_ygo)
+        optionsList.adapter = ToolsListAdapter(this, getMenuOptions())
+        configureDrawer(options)
+        setSupportActionBar(toolbar.bar)
+        configureToolbar(toolbar.bar)
+        toolbar.bar.setNavigationIcon(R.drawable.menu)
+        addContent(calculator)
     }
 
-    private fun addTools(list: ListView) {
-        val options = ArrayList<Option>()
-        options.add(Option(Option.PROXY, "Proxy Maker", R.drawable.proxy_tool))
-        options.add(Option(Option.CALCULATOR, "Duel Calculator", R.drawable.calculator))
-        list.adapter = ToolsListAdapter(this, options)
-        list.onItemClickListener = toolsListener
+    private fun getMenuOptions(): List<Option> {
+        return listOf(
+                Option(Option.PROXY, "Proxy Maker", R.drawable.proxy_tool) {
+                    if (fragment !is ProxyCardCreatorFragment) addContent(proxyContent)
+                    options.closeDrawer(GravityCompat.START)
+                },
+                Option(Option.CALCULATOR, "Duel Calculator", R.drawable.calculator) {
+                    if (fragment !is DuelCalculatorFragment) addContent(calculator)
+                    options.closeDrawer(GravityCompat.START)
+                }
+        )
     }
 
     private fun configureDrawer(drawer: DrawerLayout) {
@@ -121,7 +104,7 @@ class HomeYgoActivity : AppCompatActivity() {
         if (this.fragment != null)
             enableOptions(this.fragment!!.options, false)
         enableOptions(fragment!!.options, true)
-        toolbar!!.title = fragment.title
+        toolbar.bar.title = fragment.title
     }
 
     private fun enableOptions(options: List<Int>, enabled: Boolean) {
