@@ -1,6 +1,6 @@
 package com.jzoft.ygohelper.biz
 
-import com.jzoft.ygohelper.utils.HttpCaller
+import com.jzoft.ygohelper.utils.Caller
 
 import java.util.LinkedList
 
@@ -23,10 +23,9 @@ class ProxyCardHolder(private val localizator: ProxyCardLocator) {
 
     }
 
-    @Throws(HttpCaller.NotFound::class)
+    @Throws(Caller.NotFound::class)
     fun add(location: String) {
-        val proxyCard = localizator.locate(location) ?: throw IllegalArgumentException()
-        proxyCards.add(proxyCard)
+        localizator.locate(location).subscribe { proxyCards.add(it) }
     }
 
     fun remove(index: Int) {

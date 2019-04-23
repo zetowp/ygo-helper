@@ -4,38 +4,37 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import com.github.salomonbrys.kodein.*
+import com.github.salomonbrys.kodein.android.appKodein
 
 import com.jzoft.ygohelper.R
-import com.jzoft.ygohelper.biz.ProxyCard
-import com.jzoft.ygohelper.biz.ProxyCardHolder
-import com.jzoft.ygohelper.biz.ProxyCardLoader
-import com.jzoft.ygohelper.biz.ProxyCardPrinter
-import com.jzoft.ygohelper.biz.impl.*
+import com.jzoft.ygohelper.biz.*
 import com.jzoft.ygohelper.gone
-import com.jzoft.ygohelper.utils.HttpCaller
-import com.jzoft.ygohelper.utils.HttpCallerFactory
-import com.jzoft.ygohelper.utils.impl.ImageOptimizerDisplay
+import com.jzoft.ygohelper.utils.Caller
 import com.jzoft.ygohelper.visible
 import kotlinx.android.synthetic.main.card_sample.view.*
 
 import java.io.ByteArrayInputStream
 import java.io.File
-import java.util.LinkedList
 
 /**
  * Created by jjimenez on 13/10/16.
  */
-class PatchAdapter(private val clipboard: ClipboardManager, private val keyboard: InputMethodManager, private val context: Context) : RecyclerView.Adapter<PatchAdapter.ViewHolder>() {
+class PatchAdapter(private val clipboard: ClipboardManager, private val keyboard: InputMethodManager, private val context: Context) : RecyclerView.Adapter<PatchAdapter.ProxyViewHolder>() {
+
+    val kodein = LazyKodein(context.appKodein)
+
 
     private val list: MutableList<ProxyCard>
-    private val proxyCardHolder: ProxyCardHolder
     private val loader: ProxyCardLoader
     private val printer: ProxyCardPrinter
+    private val localizator: ProxyCardLocator
 
     private val proxyFile = createProxyFile()
 
@@ -66,15 +65,11 @@ class PatchAdapter(private val clipboard: ClipboardManager, private val keyboard
         }
 
     init {
-        val caller = HttpCallerFactory()
-        val urlToImage = ProxyCardLocatorUrlToImage(caller, ImageOptimizerDisplay())
-        proxyCardHolder = ProxyCardHolder(ProxyCardLocatorLinked.buildPatchLocatorLinked(
-                ProxyCardLocatorWordToUrlWikia(), ProxyCardLocatorUrlWikiaToImageUrl(caller),
-                urlToImage)!!)
-        loader = ProxyCardLoader(proxyFile, urlToImage)
-        printer = ProxyCardWebView(context)
-        list = LinkedList()
-        proxyCardHolder.proxyCards.addAll(loader.loadAll())
+        loader = ProxyCardLoader(proxyFile)
+        list = loader.loadAll().toMutableList()
+        list.add(ProxyCard())
+        printer = kodein().with { context }.instance()
+        localizator = kodein().instance()
         refresh()
     }
 
@@ -83,52 +78,82 @@ class PatchAdapter(private val clipboard: ClipboardManager, private val keyboard
     }
 
     fun print() {
-        printer.print(proxyCardHolder.proxyCards)
+        printer.print(list.filter { it.url != null })
     }
 
     fun clear() {
-        proxyCardHolder.proxyCards.clear()
+        list.clear()
+        list.add(ProxyCard())
         refresh()
     }
 
     private fun refresh() {
-        list.clear()
-        list.addAll(proxyCardHolder.proxyCards)
-        loader.saveAll(proxyCardHolder.proxyCards)
-        list.add(ProxyCard(null, null))
+        saveList()
         notifyDataSetChanged()
     }
 
-    override fun getItemCount() = list.size
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.card_sample, parent, false))
+    private fun saveList() {
+        loader.saveAll(list.filter { it.image != null })
     }
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+
+    override fun getItemCount() = list.size
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProxyViewHolder {
+        return ProxyViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.card_sample, parent, false))
+    }
+
+    override fun onBindViewHolder(holder: ProxyViewHolder, position: Int) {
         holder.bind(list[position], position)
     }
 
-    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    inner class ProxyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
         fun bind(proxyCard: ProxyCard, index: Int) {
-            if (proxyCard.image == null) {
-
+            if (proxyCard.url == null) {
                 itemView.copyLast.gone()
                 itemView.deleteItem.gone()
                 itemView.imageSample.setImageResource(R.drawable.not_found)
             } else {
                 itemView.copyLast.visible()
                 itemView.deleteItem.visible()
-                val bitmap = BitmapFactory.decodeStream(ByteArrayInputStream(proxyCard.image))
-                itemView.imageSample.setImageBitmap(bitmap)
+                if (proxyCard.image == null) download(proxyCard)
+                else setImage(proxyCard)
             }
             addCopyListener(index)
             addDeleteListener(index)
             addPasteListener()
-            itemView.find.setOnClickListener { Toast.makeText(context, "Temporaly disabled", Toast.LENGTH_SHORT) }
+            itemView.find.setOnClickListener { Toast.makeText(context, "Temporaly disabled", Toast.LENGTH_SHORT).show() }
+        }
+
+        private fun setImage(proxyCard: ProxyCard) {
+            itemView.imageSample.setImageBitmap(BitmapFactory.decodeStream(ByteArrayInputStream(proxyCard.image)))
+        }
+
+        private fun download(proxyCard: ProxyCard) {
+            itemView.imageSample.setImageResource(R.drawable.downloading)
+            locateCard(proxyCard, location)
+        }
+
+        private fun locateCard(card: ProxyCard, location: String) {
+            localizator.locate(card.url!!).subscribe({
+                card.url = it.url
+                card.image = it.image
+                setImage(card)
+                saveList()
+            }, {
+                when (it) {
+                    is Caller.NotFound -> Toast.makeText(context, "Not Found: " + it.url, Toast.LENGTH_LONG).show()
+                    else -> {
+                        Toast.makeText(context, "Entry error:  $location", Toast.LENGTH_LONG).show()
+                        Log.e("ERROR_IMAGE", it.message, it)
+                    }
+                }
+                list.remove(card)
+                refresh()
+            })
         }
 
         private fun addKeyboardListener() {
-            itemView.find.setOnClickListener { Toast.makeText(context, "Temporaly disabled", Toast.LENGTH_SHORT) }
+            itemView.find.setOnClickListener { Toast.makeText(context, "Temporaly disabled", Toast.LENGTH_SHORT).show() }
         }
 
         private fun addPasteListener() {
@@ -141,29 +166,22 @@ class PatchAdapter(private val clipboard: ClipboardManager, private val keyboard
             }
         }
 
-        private fun tryToAdd(location: String) {
-            try {
-                proxyCardHolder.add(location)
-                refresh()
-            } catch (notFound: HttpCaller.NotFound) {
-                Toast.makeText(context, "Not Found: " + notFound.url, Toast.LENGTH_LONG).show()
-            } catch (e: IllegalArgumentException) {
-                Toast.makeText(context, "Entry error:  $location", Toast.LENGTH_LONG).show()
-            }
-
+        private fun tryToAdd(location: String, index: Int = list.lastIndex) {
+            val card = ProxyCard(location)
+            list.add(index, card)
+            refresh()
         }
 
         private fun addDeleteListener(position: Int) {
             itemView.deleteItem.setOnClickListener {
-                proxyCardHolder.remove(position)
+                list.remove(list[position])
                 refresh()
             }
         }
 
         private fun addCopyListener(position: Int) {
             itemView.copyLast.setOnClickListener {
-                proxyCardHolder.copy(position)
-                refresh()
+                tryToAdd(list[position].url!!, position)
             }
         }
     }

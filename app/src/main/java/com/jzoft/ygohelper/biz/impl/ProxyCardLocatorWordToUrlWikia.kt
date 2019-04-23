@@ -2,6 +2,7 @@ package com.jzoft.ygohelper.biz.impl
 
 import com.jzoft.ygohelper.biz.ProxyCard
 import com.jzoft.ygohelper.biz.ProxyCardLocator
+import rx.Observable
 
 import java.util.HashMap
 
@@ -10,15 +11,15 @@ import java.util.HashMap
  */
 class ProxyCardLocatorWordToUrlWikia : ProxyCardLocator {
 
-    override fun locate(location: String): ProxyCard {
-        val builder = StringBuilder("http://yugioh.wikia.com/wiki/")
+    override fun locate(location: String): Observable<ProxyCard> {
+        val builder = StringBuilder("http://yugioh.fandom.com/wiki/")
         val split = location.split(" ".toRegex()).dropLastWhile({ it.isEmpty() }).toTypedArray()
         for (i in split.indices) {
             builder.append(getWordToUrl(split[i], i))
             builder.append("_")
         }
         builder.setLength(builder.length - 1)
-        return ProxyCard(builder.toString(), null)
+        return Observable.just(ProxyCard(builder.toString(), null))
     }
 
     private fun getWordToUrl(s: String, index: Int): String {

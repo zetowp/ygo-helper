@@ -1,9 +1,8 @@
 package com.jzoft.ygohelper.biz.impl
 
-import com.jzoft.ygohelper.biz.ProxyCard
 import com.jzoft.ygohelper.biz.ProxyCardLocator
-import com.jzoft.ygohelper.utils.HttpCaller
-import com.jzoft.ygohelper.utils.HttpCallerFactory
+import com.jzoft.ygohelper.utils.Caller
+import com.jzoft.ygohelper.utils.impl.CallerFactoryHttp
 
 import org.junit.Before
 import org.junit.Test
@@ -23,10 +22,10 @@ class ProxyCardLocatorUrlWikiaToImageUrlTest {
     @Before
     @Throws(Exception::class)
     fun setUp() {
-        locator = ProxyCardLocatorUrlWikiaToImageUrl(HttpCallerFactory())
+        locator = ProxyCardLocatorUrlWikiaToImageUrl(CallerFactoryHttp())
     }
 
-    @Test(expected = HttpCaller.NotFound::class)
+    @Test(expected = Caller.NotFound::class)
     @Throws(Exception::class)
     fun givenBadPath_returnNull() {
         val location = "NotAnUrl"

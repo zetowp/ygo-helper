@@ -1,7 +1,10 @@
 package com.jzoft.ygohelper.utils.impl
 
-import com.jzoft.ygohelper.utils.HttpCaller
-
+import android.os.AsyncTask
+import com.jzoft.ygohelper.utils.Caller
+import rx.Observable
+import rx.android.schedulers.AndroidSchedulers
+import rx.schedulers.Schedulers
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
@@ -10,12 +13,18 @@ import java.net.URL
 import java.net.UnknownHostException
 
 /**
- * Created by jjimenez on 13/10/16.
+ * Created by jjimenez on 11/10/16.
  */
-class HttpCallerConnection : HttpCaller {
+class CallerHttpConnection :Caller {
 
-    @Throws(HttpCaller.NotFound::class)
-    override fun getCall(url: String): ByteArray {
+    @Throws(Caller.NotFound::class)
+    override fun getCall(url: String): Observable<ByteArray> {
+        return Observable.fromCallable { getHttp(url) }
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+    }
+
+    private fun getHttp(url: String): ByteArray {
         try {
             val urlConnection = URL(url).openConnection() as HttpURLConnection
             urlConnection.requestMethod = "GET"
@@ -23,17 +32,16 @@ class HttpCallerConnection : HttpCaller {
             evaluateResponse(urlConnection, url)
             return getBytes(urlConnection.inputStream)
         } catch (e: UnknownHostException) {
-            throw HttpCaller.NotFound(url)
+            throw Caller.NotFound(url)
         } catch (e: IOException) {
-            throw IllegalStateException(e)
+            throw Caller.NotFound(url)
         }
-
     }
 
-    @Throws(IOException::class, HttpCaller.NotFound::class)
+    @Throws(IOException::class, Caller.NotFound::class)
     private fun evaluateResponse(urlConnection: HttpURLConnection, location: String) {
         if (urlConnection.responseCode == 404) {
-            throw HttpCaller.NotFound(location)
+            throw Caller.NotFound(location)
         }
     }
 
@@ -43,7 +51,7 @@ class HttpCallerConnection : HttpCaller {
         val bufferSize = 1024
         val buffer = ByteArray(bufferSize)
         var len = inputStream.read(buffer)
-        while (len  != -1) {
+        while (len != -1) {
             byteBuffer.write(buffer, 0, len)
             len = inputStream.read(buffer)
         }

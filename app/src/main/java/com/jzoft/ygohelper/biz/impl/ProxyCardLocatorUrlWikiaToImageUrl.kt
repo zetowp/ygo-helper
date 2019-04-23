@@ -2,24 +2,22 @@ package com.jzoft.ygohelper.biz.impl
 
 import com.jzoft.ygohelper.biz.ProxyCard
 import com.jzoft.ygohelper.biz.ProxyCardLocator
-import com.jzoft.ygohelper.utils.HttpCaller
-import com.jzoft.ygohelper.utils.HttpCallerFactory
+import com.jzoft.ygohelper.utils.Caller
+import com.jzoft.ygohelper.utils.impl.CallerFactoryHttp
+import rx.Observable
 
 import java.io.IOException
 
 /**
  * Created by jjimenez on 11/10/16.
  */
-class ProxyCardLocatorUrlWikiaToImageUrl(private val callerFactory: HttpCallerFactory) : ProxyCardLocator {
+class ProxyCardLocatorUrlWikiaToImageUrl(private val callerFactory: CallerFactoryHttp) : ProxyCardLocator {
 
-    @Throws(HttpCaller.NotFound::class)
-    override fun locate(location: String): ProxyCard {
-        try {
-            return ProxyCard(getImageUrlFromPage(callerFactory.caller.getCall(location)), null)
-        } catch (e: IOException) {
-            throw IllegalArgumentException(e)
+    @Throws(Caller.NotFound::class)
+    override fun locate(location: String): Observable<ProxyCard> {
+        return callerFactory.createCaller().getCall(location).flatMap {
+             Observable.just(ProxyCard(getImageUrlFromPage(it), null))
         }
-
     }
 
     @Throws(IOException::class)

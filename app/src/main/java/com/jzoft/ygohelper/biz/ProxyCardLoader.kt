@@ -1,6 +1,7 @@
 package com.jzoft.ygohelper.biz
 
-import com.jzoft.ygohelper.utils.HttpCaller
+import com.jzoft.ygohelper.utils.Caller
+import rx.Observable
 
 import java.io.BufferedReader
 import java.io.File
@@ -9,13 +10,12 @@ import java.io.FileReader
 import java.io.FileWriter
 import java.io.IOException
 import java.io.PrintWriter
-import java.util.HashMap
-import java.util.LinkedList
+import java.util.*
 
 /**
  * Created by jjimenez on 16/02/17.
  */
-class ProxyCardLoader(private val file: File, private val urlToImage: ProxyCardLocator) {
+class ProxyCardLoader(private val file: File) {
 
     fun loadAll(): List<ProxyCard> {
         val proxyCards = LinkedList<ProxyCard>()
@@ -33,37 +33,20 @@ class ProxyCardLoader(private val file: File, private val urlToImage: ProxyCardL
         } catch (e: IOException) {
             IllegalStateException(e)
         }
-
     }
 
     private fun fileToPatches(proxyCards: LinkedList<ProxyCard>) {
-        val cache = HashMap<String, ByteArray>()
         try {
             val reader = BufferedReader(FileReader(file))
             var line: String? = reader.readLine()
             while (line != null) {
-                proxyCards.add(toPatch(line, cache))
+                proxyCards.add(ProxyCard(line, null))
                 line = reader.readLine()
             }
         } catch (e: IOException) {
             e.printStackTrace()
         }
 
-    }
-
-    private fun toPatch(line: String, cache: MutableMap<String, ByteArray>): ProxyCard {
-        val bytes = cache[line]
-        if (bytes == null) {
-            try {
-                val proxy = urlToImage.locate(line)
-                cache[proxy.url!!] = proxy.image!!
-                return proxy
-            } catch (notFound: HttpCaller.NotFound) {
-                IllegalStateException()
-            }
-
-        }
-        return ProxyCard(line, bytes)
     }
 
     fun saveAll(proxyCards: List<ProxyCard>) {

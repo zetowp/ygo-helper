@@ -2,8 +2,10 @@ package com.jzoft.ygohelper.utils.impl
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import com.jzoft.ygohelper.utils.Caller
 
 import com.jzoft.ygohelper.utils.ImageOptimizer
+import rx.Observable
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -11,7 +13,12 @@ import java.io.ByteArrayOutputStream
 /**
  * Created by jjimenez on 13/10/16.
  */
-class ImageOptimizerDisplay : ImageOptimizer {
+class ImageOptimizerDisplay(val caller: Caller) : ImageOptimizer, Caller {
+
+    override fun getCall(url: String): Observable<ByteArray> {
+        return caller.getCall(url).flatMap { Observable.just(optimizeImage(it)) }
+    }
+
     override fun optimizeImage(image: ByteArray): ByteArray {
         val bitmap = scaleDown(BitmapFactory.decodeStream(ByteArrayInputStream(image)), 120f, true)
         val stream = ByteArrayOutputStream()
