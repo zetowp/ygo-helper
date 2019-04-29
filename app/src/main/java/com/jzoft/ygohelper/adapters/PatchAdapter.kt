@@ -3,19 +3,24 @@ package com.jzoft.ygohelper.adapters
 import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.BitmapFactory
+import android.support.v4.app.FragmentManager
+import android.support.v7.view.menu.MenuView
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.ImageView
 import android.widget.Toast
 import com.github.salomonbrys.kodein.*
 import com.github.salomonbrys.kodein.android.appKodein
 
 import com.jzoft.ygohelper.R
 import com.jzoft.ygohelper.biz.*
+import com.jzoft.ygohelper.dialogs.CardNameDialog
 import com.jzoft.ygohelper.gone
+import com.jzoft.ygohelper.loadUrl
 import com.jzoft.ygohelper.utils.Caller
 import com.jzoft.ygohelper.visible
 import kotlinx.android.synthetic.main.card_sample.view.*
@@ -26,15 +31,16 @@ import java.io.File
 /**
  * Created by jjimenez on 13/10/16.
  */
-class PatchAdapter(private val clipboard: ClipboardManager, private val keyboard: InputMethodManager, private val context: Context) : RecyclerView.Adapter<PatchAdapter.ProxyViewHolder>() {
+class PatchAdapter(private val clipboard: ClipboardManager, private val keyboard: InputMethodManager,
+                   private val context: Context, private val fragmentManager: FragmentManager) : RecyclerView.Adapter<PatchAdapter.ProxyViewHolder>() {
 
     val kodein = LazyKodein(context.appKodein)
-
 
     private val list: MutableList<ProxyCard>
     private val loader: ProxyCardLoader
     private val printer: ProxyCardPrinter
     private val localizator: ProxyCardLocator
+    private val urlLocator: ProxyCardLocator
 
     private val proxyFile = createProxyFile()
 
@@ -70,6 +76,7 @@ class PatchAdapter(private val clipboard: ClipboardManager, private val keyboard
         list.add(ProxyCard())
         printer = kodein().with { context }.instance()
         localizator = kodein().instance()
+        urlLocator = kodein().instance("urlLocator")
         refresh()
     }
 
@@ -93,7 +100,7 @@ class PatchAdapter(private val clipboard: ClipboardManager, private val keyboard
     }
 
     private fun saveList() {
-        loader.saveAll(list.filter { it.image != null })
+        loader.saveAll(list.filter { it.save })
     }
 
     override fun getItemCount() = list.size
@@ -115,31 +122,66 @@ class PatchAdapter(private val clipboard: ClipboardManager, private val keyboard
             } else {
                 itemView.copyLast.visible()
                 itemView.deleteItem.visible()
-                if (proxyCard.image == null) download(proxyCard)
-                else setImage(proxyCard)
+                if (proxyCard.image == null) download(proxyCard, proxyCard.url
+                        ?: "NOT_FOUND", itemView.imageSample)
+                else setImage(proxyCard, itemView.imageSample)
             }
             addCopyListener(index)
             addDeleteListener(index)
             addPasteListener()
-            itemView.find.setOnClickListener { Toast.makeText(context, "Temporaly disabled", Toast.LENGTH_SHORT).show() }
+            addKeyboardListener()
         }
 
-        private fun setImage(proxyCard: ProxyCard) {
-            itemView.imageSample.setImageBitmap(BitmapFactory.decodeStream(ByteArrayInputStream(proxyCard.image)))
+        private fun setImage(proxyCard: ProxyCard, image: ImageView) {
+            image.setImageBitmap(BitmapFactory.decodeStream(ByteArrayInputStream(proxyCard.image)))
         }
 
-        private fun download(proxyCard: ProxyCard) {
-            itemView.imageSample.setImageResource(R.drawable.downloading)
-            locateCard(proxyCard, location)
+        private fun download(proxyCard: ProxyCard, location: String, image: ImageView) {
+//            useGlideLocator(proxyCard, location, image)
+            useHttpLocator(proxyCard, location, image)
         }
 
-        private fun locateCard(card: ProxyCard, location: String) {
+        private fun useGlideLocator(proxyCard: ProxyCard, location: String, image: ImageView) {
+            urlLocator.locate(location).subscribe({
+                image.loadUrl(it.url!!, R.drawable.downloading, onSuccess = {
+                    proxyCard.url = it.url
+                    proxyCard.save = true
+                    saveList()
+                }, onError = {
+                    proxyCard.save = false
+                    list.remove(proxyCard)
+                    refresh()
+                })
+            }, errorOnLocator(location, proxyCard))
+        }
+
+        private fun useHttpLocator(proxyCard: ProxyCard, location: String, image: ImageView) {
+            image.setImageResource(R.drawable.downloading)
+            locateCard(proxyCard, location, image)
+        }
+
+        private fun locateCard(card: ProxyCard, location: String, image: ImageView) {
             localizator.locate(card.url!!).subscribe({
                 card.url = it.url
                 card.image = it.image
-                setImage(card)
+                setImage(card, image)
+                card.save = true
                 saveList()
-            }, {
+            }, errorOnLocator(location, card))
+        }
+
+        private fun useLocator(card: ProxyCard, image: ImageView, location: String) {
+            localizator.locate(card.url!!).subscribe({
+                card.url = it.url
+                card.image = it.image
+                setImage(card, image)
+                saveList()
+                card.save = true
+            }, errorOnLocator(location, card))
+        }
+
+        private fun errorOnLocator(location: String, card: ProxyCard): (Throwable) -> Unit {
+            return {
                 when (it) {
                     is Caller.NotFound -> Toast.makeText(context, "Not Found: " + it.url, Toast.LENGTH_LONG).show()
                     else -> {
@@ -147,13 +189,16 @@ class PatchAdapter(private val clipboard: ClipboardManager, private val keyboard
                         Log.e("ERROR_IMAGE", it.message, it)
                     }
                 }
+                card.save = false
                 list.remove(card)
                 refresh()
-            })
+            }
         }
 
         private fun addKeyboardListener() {
-            itemView.find.setOnClickListener { Toast.makeText(context, "Temporaly disabled", Toast.LENGTH_SHORT).show() }
+            itemView.find.setOnClickListener {
+                CardNameDialog.build { tryToAdd(it) }.show(fragmentManager, "show_search")
+            }
         }
 
         private fun addPasteListener() {

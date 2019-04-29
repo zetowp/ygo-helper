@@ -27,7 +27,7 @@ class ProxyCardCreatorActivity : BaseActivity() {
         setContentView(R.layout.activity_home_ygo)
         verifyStoragePermissions(this)
         val keyboard = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        patchAdapter = PatchAdapter(getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager, keyboard, this)
+        patchAdapter = PatchAdapter(getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager, keyboard, this, supportFragmentManager)
         patchList.adapter = patchAdapter
     }
 

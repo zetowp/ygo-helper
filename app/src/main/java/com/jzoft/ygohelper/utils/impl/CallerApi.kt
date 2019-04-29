@@ -8,7 +8,7 @@ import rx.Subscription
 class CallerApi(val api: ApiService) : Caller {
     override fun getCall(url: String): Observable<ByteArray> {
         return api.getFromWeb(url).flatMap {
-            if (it.isSuccessful) Observable.just(it.body()!!)
+            if (it.isSuccessful) Observable.just(it.body()!!.toByteArray())
             else throw Caller.NotFound(url)
         }
     }

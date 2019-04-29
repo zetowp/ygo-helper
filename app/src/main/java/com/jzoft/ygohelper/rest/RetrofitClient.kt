@@ -41,7 +41,7 @@ class RetrofitClient() {
 
     private fun initBuilder(baseUrl: String?): Retrofit.Builder {
         return Retrofit.Builder()
-                .baseUrl(baseUrl)
+                .baseUrl(baseUrl ?: "http://localhost/")
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io()))
                 .addConverterFactory(ScalarsConverterFactory.create())
                 .addConverterFactory(JacksonConverterFactory.create(buildMapper()))

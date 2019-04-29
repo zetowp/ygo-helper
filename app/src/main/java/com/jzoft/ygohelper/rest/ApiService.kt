@@ -15,6 +15,6 @@ interface ApiService {
              @Field("password") password: String, @Field("grant_type") grant: String = "password"): Observable<Token>
 
     @GET
-    fun getFromWeb(@Url url: String): Observable<Response<ByteArray>>
+    fun getFromWeb(@Url url: String): Observable<Response<String>>
 
 }

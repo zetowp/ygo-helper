@@ -11,11 +11,11 @@ import java.io.IOException
 /**
  * Created by jjimenez on 11/10/16.
  */
-class ProxyCardLocatorUrlWikiaToImageUrl(private val callerFactory: CallerFactoryHttp) : ProxyCardLocator {
+class ProxyCardLocatorUrlWikiaToImageUrl(private val caller: Caller) : ProxyCardLocator {
 
     @Throws(Caller.NotFound::class)
     override fun locate(location: String): Observable<ProxyCard> {
-        return callerFactory.createCaller().getCall(location).flatMap {
+        return caller.getCall(location).flatMap {
              Observable.just(ProxyCard(getImageUrlFromPage(it), null))
         }
     }

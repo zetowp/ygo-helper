@@ -39,7 +39,7 @@ class ProxyCardCreatorFragment : YgoFragment() {
         act = activity as Activity
         verifyStoragePermissions(act)
         val keyboard = act.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        patchAdapter = PatchAdapter(act.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager, keyboard, act)
+        patchAdapter = PatchAdapter(act.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager, keyboard, act, childFragmentManager)
         patchList.adapter = patchAdapter
     }
 

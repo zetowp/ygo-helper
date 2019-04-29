@@ -18,6 +18,11 @@
     <color name="preCalculatorHeal">#87ea80fc</color>
     <color name="buttonCalculator">#212121</color>
     <color name="background" >#212121</color>
+    <color name="cancelBackground" >#C5A4A4</color>
+    <color name="cancelLabel" >#F14848</color>
+    <color name="okBackground" >#C7C7E9</color>
+    <color name="okLabel" >#060658</color>
+    <color name="white" >#FFF</color>
 
 
 </resources>

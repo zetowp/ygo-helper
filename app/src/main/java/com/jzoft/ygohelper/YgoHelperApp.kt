@@ -8,10 +8,9 @@ import com.jzoft.ygohelper.biz.ProxyCardLocator
 import com.jzoft.ygohelper.biz.ProxyCardPrinter
 import com.jzoft.ygohelper.biz.impl.*
 import com.jzoft.ygohelper.rest.ApiService
-import com.jzoft.ygohelper.utils.impl.CallerCache
-import com.jzoft.ygohelper.utils.impl.CallerFactoryHttp
-import com.jzoft.ygohelper.utils.impl.CallerHttpConnection
-import com.jzoft.ygohelper.utils.impl.ImageOptimizerDisplay
+import com.jzoft.ygohelper.utils.Caller
+import com.jzoft.ygohelper.utils.impl.*
+import java.io.File
 
 /**
  * Created by jjimenez on 3/08/17.
@@ -29,15 +28,21 @@ class YgoHelperApp() : Application(), KodeinAware {
 //        bind<ServerOperations>("client") with singleton { ServerOperationsRetrofit(instance(), instance(), instance()) }
 //        bind<ServerOperations>() with provider { ServerOperationSaver(instance("client"), instance()) }
         bind<ProxyCardPrinter>() with factory { ctx: Context -> ProxyCardWebView(ctx) }
+        bind<ApiService>("free") with singleton { instance<RetrofitClient>().apiService() }
+        bind<ApiService>() with provider { instance<RetrofitClient>().apiService(baseUrl) }
+        bind<Caller>() with provider { CallerHttpConnection() }
+        bind<Caller>("api") with provider { CallerApi(instance("free")) }
 
         bind<ProxyCardLocator>() with provider {
             ProxyCardLocatorLinked.buildPatchLocatorLinked(
-                    ProxyCardLocatorWordToUrlWikia(), ProxyCardLocatorUrlWikiaToImageUrl(CallerFactoryHttp()),
-                    ProxyCardLocatorUrlToImage(CallerCache(ImageOptimizerDisplay(CallerHttpConnection()))))!!
+                    ProxyCardLocatorWordToUrlWikia(), ProxyCardLocatorUrlWikiaToImageUrl(instance()),
+                    ProxyCardLocatorUrlToImage(CallerFileCache(ImageOptimizerDisplay(instance()), File(baseContext.filesDir, "images"))))!!
+        }
+        bind<ProxyCardLocator>("urlLocator") with provider {
+            ProxyCardLocatorLinked.buildPatchLocatorLinked(
+                    ProxyCardLocatorWordToUrlWikia(), ProxyCardLocatorUrlWikiaToImageUrl(instance()))!!
         }
         bind<RetrofitClient>() with singleton { RetrofitClient() }
-        bind<ApiService>("free") with singleton { instance<RetrofitClient>().apiService() }
-        bind<ApiService>() with provider { instance<RetrofitClient>().apiService(baseUrl) }
         ctx = applicationContext
     }
 

@@ -12,7 +12,7 @@ import java.util.HashMap
 class ProxyCardLocatorWordToUrlWikia : ProxyCardLocator {
 
     override fun locate(location: String): Observable<ProxyCard> {
-        val builder = StringBuilder("http://yugioh.fandom.com/wiki/")
+        val builder = StringBuilder("https://yugioh.fandom.com/wiki/")
         val split = location.split(" ".toRegex()).dropLastWhile({ it.isEmpty() }).toTypedArray()
         for (i in split.indices) {
             builder.append(getWordToUrl(split[i], i))
